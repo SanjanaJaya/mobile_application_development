@@ -1,4 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+import 'login.dart';
 
 void main() {
   runApp(MyApp());
@@ -8,107 +11,221 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: HomeScreen(),
+      debugShowCheckedModeBanner: false,
+      home: AuthScreen()
     );
   }
 }
 
-class HomeScreen extends StatelessWidget {
+class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Assuming a white background
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: CircleAvatar(
-            backgroundColor: Colors.grey[300], // Placeholder for user avatar
-            child: Icon(Icons.person, color: Colors.grey),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: Icon(Icons.menu, color: Colors.black),
+            onPressed: () {
+              // Open the drawer using the correct context
+              Scaffold.of(context).openDrawer();
+            },
           ),
         ),
-        title: Text(
-          'Hello, Nethmina',
-          style: TextStyle(color: Colors.black),
-        ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.search, color: Colors.black),
-            onPressed: () {
-              // Handle search action
-            },
+          Padding(
+            padding: EdgeInsets.only(right: 16.0),
+            child: CircleAvatar(
+              backgroundImage: AssetImage('img/profile.png'),
+            ),
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
           children: [
-            TextField(
-              decoration: InputDecoration(
-                hintText: 'SEARCH',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+            // Drawer Header
+            UserAccountsDrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.grey, // Background color for the header
+              ),
+              accountName: Text(
+                'Nethmina Medagedara',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
                 ),
-                suffixIcon: Icon(Icons.search),
+              ),
+              accountEmail: Text(
+                'saangip17@gmail.com',
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+              ),
+              currentAccountPicture: CircleAvatar(
+                backgroundImage: AssetImage('img/profile.png'),
               ),
             ),
-            SizedBox(height: 20),
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 3,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                children: [
-                  _buildServiceButton(Icons.library_books, 'Library'),
-                  _buildServiceButton(Icons.delete, 'Garbage'),
-                  _buildServiceButton(Icons.school, 'Preschool'),
-                  _buildServiceButton(Icons.favorite, 'Health'),
-                  _buildServiceButton(Icons.assessment, 'Assessment'),
-                  _buildServiceButton(Icons.directions_car, 'Street'),
-                  _buildServiceButton(Icons.access_time, 'Availability'),
-                ],
-              ),
+            // Menu Items
+            ListTile(
+              leading: Icon(Icons.location_on, color: Colors.black),
+              title: Text('Location'),
+              onTap: () {
+                // Handle Location tap
+                Navigator.pop(context); // Close the drawer
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.contact_mail, color: Colors.black),
+              title: Text('Contact us'),
+              onTap: () {
+                // Handle Contact us tap
+                Navigator.pop(context); // Close the drawer
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.settings, color: Colors.black),
+              title: Text('Settings'),
+              onTap: () {
+                // Handle Settings tap
+                Navigator.pop(context); // Close the drawer
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.help_outline, color: Colors.black),
+              title: Text('Help and FAQs'),
+              onTap: () {
+                // Handle Help and FAQs tap
+                Navigator.pop(context); // Close the drawer
+              },
             ),
           ],
         ),
       ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(horizontal: 16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Search Bar
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(25.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    spreadRadius: 2,
+                    blurRadius: 10,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.search, color: Colors.grey[600]),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Search here',
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 20),
+
+            // Services Section
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Services', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              ],
+            ),
+            SizedBox(height: 10),
+
+            GridView.count(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              crossAxisCount: 4,
+              children: [
+                ServiceIcon('img/book.png', 'Books'),
+                ServiceIcon('img/trash.png', 'Trash'),
+                ServiceIcon('img/analytics.png', 'Analytics'),
+                ServiceIcon('img/medical.png', 'Medical'),
+                ServiceIcon('img/medical.png', 'Health'),
+                ServiceIcon('img/medical.png', 'Care'),
+                ServiceIcon('img/medical.png', 'Support'),
+                ServiceIcon('img/medical.png', 'Help'),
+              ],
+            ),
+            SizedBox(height: 20),
+
+            // Updates Section
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Updates', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                Text('View all >', style: TextStyle(color: Colors.grey[600])),
+              ],
+            ),
+            SizedBox(height: 10),
+
+            ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: Image.asset('img/landscape.png', fit: BoxFit.cover),
+            ),
+            SizedBox(height: 20),
+          ],
+        ),
+      ),
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: '',
-          ),
+        items: [
+          BottomNavigationBarItem(icon: Icon(LucideIcons.home), label: ''),
+          BottomNavigationBarItem(icon: Icon(LucideIcons.camera), label: ''),
+          BottomNavigationBarItem(icon: Icon(LucideIcons.bell), label: ''),
         ],
-        selectedItemColor: Colors.blue, // Customize selected item color
-        unselectedItemColor: Colors.grey, // Customize unselected item color
       ),
     );
   }
+}
 
-  Widget _buildServiceButton(IconData icon, String label) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.blue[900], // Dark blue background for buttons
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: Colors.white, size: 30),
-          SizedBox(height: 8),
-          Text(label, style: TextStyle(color: Colors.white)),
-        ],
-      ),
+class ServiceIcon extends StatelessWidget {
+  final String imagePath;
+  final String label;
+
+  ServiceIcon(this.imagePath, this.label);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          padding: EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 2,
+                blurRadius: 10,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Image.asset(imagePath, width: 40, height: 40),
+        ),
+        SizedBox(height: 5),
+        Text(label, style: TextStyle(fontSize: 12)),
+      ],
     );
   }
 }
