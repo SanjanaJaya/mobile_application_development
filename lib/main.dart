@@ -1,7 +1,8 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'login.dart';
+import 'garbage.dart';
+import 'health.dart'; // Import HealthPage
 
 void main() {
   runApp(MyApp());
@@ -12,7 +13,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: AuthScreen()
+      home: DashboardScreen(),
     );
   }
 }
@@ -29,7 +30,6 @@ class DashboardScreen extends StatelessWidget {
           builder: (context) => IconButton(
             icon: Icon(Icons.menu, color: Colors.black),
             onPressed: () {
-              // Open the drawer using the correct context
               Scaffold.of(context).openDrawer();
             },
           ),
@@ -47,10 +47,9 @@ class DashboardScreen extends StatelessWidget {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            // Drawer Header
             UserAccountsDrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.grey, // Background color for the header
+                color: Colors.grey,
               ),
               accountName: Text(
                 'Nethmina Medagedara',
@@ -69,37 +68,32 @@ class DashboardScreen extends StatelessWidget {
                 backgroundImage: AssetImage('img/profile.png'),
               ),
             ),
-            // Menu Items
             ListTile(
               leading: Icon(Icons.location_on, color: Colors.black),
               title: Text('Location'),
               onTap: () {
-                // Handle Location tap
-                Navigator.pop(context); // Close the drawer
+                Navigator.pop(context);
               },
             ),
             ListTile(
               leading: Icon(Icons.contact_mail, color: Colors.black),
               title: Text('Contact us'),
               onTap: () {
-                // Handle Contact us tap
-                Navigator.pop(context); // Close the drawer
+                Navigator.pop(context);
               },
             ),
             ListTile(
               leading: Icon(Icons.settings, color: Colors.black),
               title: Text('Settings'),
               onTap: () {
-                // Handle Settings tap
-                Navigator.pop(context); // Close the drawer
+                Navigator.pop(context);
               },
             ),
             ListTile(
               leading: Icon(Icons.help_outline, color: Colors.black),
               title: Text('Help and FAQs'),
               onTap: () {
-                // Handle Help and FAQs tap
-                Navigator.pop(context); // Close the drawer
+                Navigator.pop(context);
               },
             ),
           ],
@@ -110,7 +104,6 @@ class DashboardScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Search Bar
             Container(
               padding: EdgeInsets.symmetric(horizontal: 16.0),
               decoration: BoxDecoration(
@@ -141,8 +134,6 @@ class DashboardScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20),
-
-            // Services Section
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -150,25 +141,32 @@ class DashboardScreen extends StatelessWidget {
               ],
             ),
             SizedBox(height: 10),
-
             GridView.count(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
               crossAxisCount: 4,
               children: [
                 ServiceIcon('img/book.png', 'Books'),
-                ServiceIcon('img/trash.png', 'Trash'),
+                ServiceIcon('img/trash.png', 'Trash', onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => GarbagePage()),
+                  );
+                }),
                 ServiceIcon('img/analytics.png', 'Analytics'),
                 ServiceIcon('img/medical.png', 'Medical'),
-                ServiceIcon('img/medical.png', 'Health'),
+                ServiceIcon('img/medical.png', 'Health', onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => HealthPage()), // Navigate to HealthPage
+                  );
+                }),
                 ServiceIcon('img/medical.png', 'Care'),
                 ServiceIcon('img/medical.png', 'Support'),
                 ServiceIcon('img/medical.png', 'Help'),
               ],
             ),
             SizedBox(height: 20),
-
-            // Updates Section
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -177,7 +175,6 @@ class DashboardScreen extends StatelessWidget {
               ],
             ),
             SizedBox(height: 10),
-
             ClipRRect(
               borderRadius: BorderRadius.circular(15),
               child: Image.asset('img/landscape.png', fit: BoxFit.cover),
@@ -200,32 +197,36 @@ class DashboardScreen extends StatelessWidget {
 class ServiceIcon extends StatelessWidget {
   final String imagePath;
   final String label;
+  final VoidCallback? onTap;
 
-  ServiceIcon(this.imagePath, this.label);
+  ServiceIcon(this.imagePath, this.label, {this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          padding: EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
-                spreadRadius: 2,
-                blurRadius: 10,
-                offset: Offset(0, 3),
-              ),
-            ],
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  spreadRadius: 2,
+                  blurRadius: 10,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Image.asset(imagePath, width: 40, height: 40),
           ),
-          child: Image.asset(imagePath, width: 40, height: 40),
-        ),
-        SizedBox(height: 5),
-        Text(label, style: TextStyle(fontSize: 12)),
-      ],
+          SizedBox(height: 5),
+          Text(label, style: TextStyle(fontSize: 12)),
+        ],
+      ),
     );
   }
 }
