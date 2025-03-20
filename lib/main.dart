@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart'; // Import Firebase
 import 'package:lucide_icons/lucide_icons.dart';
-import 'login.dart';
+import 'login.dart'; // Import AuthScreen
 import 'garbage.dart';
 import 'health.dart'; // Import HealthPage
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter is initialized
+  await Firebase.initializeApp(); // Initialize Firebase
   runApp(MyApp());
 }
 
@@ -13,7 +16,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: DashboardScreen(),
+      home: AuthScreen(), // Set AuthScreen as the initial screen
     );
   }
 }
@@ -133,14 +136,14 @@ class DashboardScreen extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 50),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Services', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                Text('Services', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
               ],
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 80),
             GridView.count(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
@@ -161,32 +164,18 @@ class DashboardScreen extends StatelessWidget {
                     MaterialPageRoute(builder: (context) => HealthPage()), // Navigate to HealthPage
                   );
                 }),
-                ServiceIcon('img/medical.png', 'Care'),
+                ServiceIcon('img/medical.png', 'Pakaya'),
                 ServiceIcon('img/medical.png', 'Support'),
-                ServiceIcon('img/medical.png', 'Help'),
               ],
             ),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Updates', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                Text('View all >', style: TextStyle(color: Colors.grey[600])),
-              ],
-            ),
-            SizedBox(height: 10),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(15),
-              child: Image.asset('img/landscape.png', fit: BoxFit.cover),
-            ),
-            SizedBox(height: 20),
+            SizedBox(height: 30),
+            SizedBox(height: 30),
           ],
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(icon: Icon(LucideIcons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(LucideIcons.camera), label: ''),
           BottomNavigationBarItem(icon: Icon(LucideIcons.bell), label: ''),
         ],
       ),
