@@ -32,21 +32,18 @@ class _StaffAvailabilityPageState extends State<StaffAvailabilityPage> {
           'Availability': doc['availability'],
         };
       }).toList();
-      _filteredStaffList = _staffList;
+      _filteredStaffList = _staffList; // Initialize filtered list with all staff
     });
   }
 
   void _onSearchChanged() {
     setState(() {
-      _filteredStaffList = _staffList
-          .where((staff) =>
-      staff['Name']
-          .toLowerCase()
-          .contains(_searchController.text.toLowerCase()) ||
-          staff['Position']
-              .toLowerCase()
-              .contains(_searchController.text.toLowerCase()))
-          .toList();
+      final query = _searchController.text.toLowerCase();
+      _filteredStaffList = _staffList.where((staff) {
+        final name = staff['Name']?.toString().toLowerCase() ?? '';
+        final position = staff['Position']?.toString().toLowerCase() ?? '';
+        return name.contains(query) || position.contains(query);
+      }).toList();
     });
   }
 
