@@ -31,32 +31,27 @@ class _GarbageStaffState extends State<GarbageStaff> {
               columns: const <DataColumn>[
                 DataColumn(
                   label: Text(
-                    'Action',
-                    style: TextStyle(fontStyle: FontStyle.italic),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
                     'Collection Zone',
-                    style: TextStyle(fontStyle: FontStyle.italic),
                   ),
                 ),
                 DataColumn(
                   label: Text(
                     'Collection Type',
-                    style: TextStyle(fontStyle: FontStyle.italic),
                   ),
                 ),
                 DataColumn(
                   label: Text(
                     'Date',
-                    style: TextStyle(fontStyle: FontStyle.italic),
                   ),
                 ),
                 DataColumn(
                   label: Text(
                     'Time',
-                    style: TextStyle(fontStyle: FontStyle.italic),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Action',
                   ),
                 ),
               ],
@@ -65,6 +60,10 @@ class _GarbageStaffState extends State<GarbageStaff> {
                 var date = (data['Date'] as Timestamp).toDate();
                 return DataRow(
                   cells: <DataCell>[
+                    DataCell(Text(data['Collection Zone'] ?? '')),
+                    DataCell(Text(data['CollectionType'] ?? '')),
+                    DataCell(Text(DateFormat('dd MMM yyyy').format(date))),
+                    DataCell(Text(DateFormat('hh:mm a').format(date))),
                     DataCell(
                       IconButton(
                         icon: Icon(Icons.delete, color: Colors.red),
@@ -73,10 +72,6 @@ class _GarbageStaffState extends State<GarbageStaff> {
                         },
                       ),
                     ),
-                    DataCell(Text(data['Collection Zone'] ?? '')),
-                    DataCell(Text(data['CollectionType'] ?? '')),
-                    DataCell(Text(DateFormat('dd MMM yyyy').format(date))),
-                    DataCell(Text(DateFormat('hh:mm a').format(date))),
                   ],
                 );
               }).toList(),
