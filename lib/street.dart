@@ -41,6 +41,15 @@ class _StreetPageState extends State<StreetPage> {
 
       // Clear the form
       _formKey.currentState!.reset();
+
+      // Reset the state variables (optional, but recommended)
+      setState(() {
+        _location = '';
+        _issueType = '';
+        _description = '';
+        _urgencyLevel = '';
+        _contactNumber = '';
+      });
     }
   }
 
