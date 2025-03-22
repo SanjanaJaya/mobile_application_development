@@ -149,8 +149,8 @@ class DashboardScreen extends StatelessWidget {
               physics: NeverScrollableScrollPhysics(),
               crossAxisCount: 4,
               children: [
-                ServiceIcon('img/book.png', 'Books'),
-                ServiceIcon('img/trash.png', 'Trash', onTap: () {
+                ServiceIcon('img/book.png', 'Library'),
+                ServiceIcon('img/trash.png', 'Garbage', onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => GarbagePage()),
