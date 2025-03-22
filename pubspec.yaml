@@ -66,11 +66,15 @@ flutter:
   assets:
      - img/book.png
      - img/analytics.png
-     - img/medical.png
-     - img/trash.png
+     - img/garbage.png
      - img/landscape.png
      - img/profile.png
      - img/logo.png
+     - img/street.png
+     - img/staff.png
+     - img/assessment.png
+     - img/contact.png
+     - img/location.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

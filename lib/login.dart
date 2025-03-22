@@ -42,10 +42,15 @@ class _AuthScreenState extends State<AuthScreen> {
       if (userDoc.exists) {
         final userRole = userDoc['userRole'];
         if (userRole == 'User') {
-          // Navigate to the DashboardScreen on successful login
+          // Fetch the user data
+          final userData = userDoc.data() as Map<String, dynamic>;
+
+          // Navigate to the DashboardScreen on successful login with user data
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => DashboardScreen()),
+            MaterialPageRoute(
+              builder: (context) => DashboardScreen(userData: userData),
+            ),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(

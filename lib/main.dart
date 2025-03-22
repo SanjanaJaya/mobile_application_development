@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart'; // Import Firebase
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'login.dart'; // Import AuthScreen
 import 'garbage.dart';
@@ -22,6 +24,10 @@ class MyApp extends StatelessWidget {
 }
 
 class DashboardScreen extends StatelessWidget {
+  final Map<String, dynamic> userData;
+
+  DashboardScreen({required this.userData});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,7 +47,7 @@ class DashboardScreen extends StatelessWidget {
           Padding(
             padding: EdgeInsets.only(right: 16.0),
             child: CircleAvatar(
-              backgroundImage: AssetImage('img/profile.png'),
+              backgroundImage: NetworkImage(userData['image']),
             ),
           ),
         ],
@@ -55,20 +61,20 @@ class DashboardScreen extends StatelessWidget {
                 color: Colors.grey,
               ),
               accountName: Text(
-                'Nethmina Medagedara',
+                userData['Name'],
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               accountEmail: Text(
-                'saangip17@gmail.com',
+                userData['Email'],
                 style: TextStyle(
                   fontSize: 16,
                 ),
               ),
               currentAccountPicture: CircleAvatar(
-                backgroundImage: AssetImage('img/profile.png'),
+                backgroundImage: NetworkImage(userData['image']),
               ),
             ),
             ListTile(
@@ -137,38 +143,51 @@ class DashboardScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 50),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start, // Align text to the left
               children: [
-                Text('Services', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+                Text(
+                  'Hello,', // First line
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  userData['Name'], // Second line
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
             SizedBox(height: 80),
             GridView.count(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
-              crossAxisCount: 4,
+              crossAxisCount: 3,
+              childAspectRatio: 0.9, // Adjust this value to give more height to the children
               children: [
                 ServiceIcon('img/book.png', 'Library'),
-                ServiceIcon('img/trash.png', 'Garbage', onTap: () {
+                ServiceIcon('img/garbage.png', 'Garbage', onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => GarbagePage()),
                   );
                 }),
-                ServiceIcon('img/analytics.png', 'Analytics'),
-                ServiceIcon('img/medical.png', 'Medical'),
-                ServiceIcon('img/medical.png', 'Health', onTap: () {
+                ServiceIcon('img/assessment.png', 'Assessment'),
+                ServiceIcon('img/street.png', 'Street Maintenance'),
+                ServiceIcon('img/staff.png', 'Staff Availability', onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => HealthPage()), // Navigate to HealthPage
+                    MaterialPageRoute(builder: (context) => HealthPage()),
                   );
                 }),
-                ServiceIcon('img/medical.png', 'Pakaya'),
-                ServiceIcon('img/medical.png', 'Support'),
+                ServiceIcon('img/contact.png', 'Contact Us'),
+                ServiceIcon('img/location.png', 'Location'),
               ],
             ),
-            SizedBox(height: 30),
             SizedBox(height: 30),
           ],
         ),
@@ -194,27 +213,37 @@ class ServiceIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            padding: EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  spreadRadius: 2,
-                  blurRadius: 10,
-                  offset: Offset(0, 3),
-                ),
-              ],
+      child: Container(
+        height: 120, // Fixed height to ensure enough space
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    spreadRadius: 2,
+                    blurRadius: 10,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Image.asset(imagePath, width: 60, height: 60),
             ),
-            child: Image.asset(imagePath, width: 40, height: 40),
-          ),
-          SizedBox(height: 5),
-          Text(label, style: TextStyle(fontSize: 12)),
-        ],
+            SizedBox(height: 10),
+            Flexible( // Ensure text doesn't overflow
+              child: Text(
+                label,
+                style: TextStyle(fontSize: 14),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
