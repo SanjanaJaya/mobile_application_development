@@ -9,6 +9,8 @@ class GarbageStaff extends StatefulWidget {
 
 class _GarbageStaffState extends State<GarbageStaff> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   Widget build(BuildContext context) {
@@ -16,68 +18,105 @@ class _GarbageStaffState extends State<GarbageStaff> {
       appBar: AppBar(
         title: Text('Garbage Management Schedule'),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: _firestore.collection('garbage collection').snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
-          }
-
-          var garbageCollections = snapshot.data!.docs;
-
-          return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              columns: const <DataColumn>[
-                DataColumn(
-                  label: Text(
-                    'Collection Zone',
-                  ),
+      body: Column(
+        children: [
+          // Search Bar
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search by Collection Zone',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                DataColumn(
-                  label: Text(
-                    'Collection Type',
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Date',
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Time',
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Action',
-                  ),
-                ),
-              ],
-              rows: garbageCollections.map<DataRow>((DocumentSnapshot document) {
-                var data = document.data() as Map<String, dynamic>;
-                var date = (data['Date'] as Timestamp).toDate();
-                return DataRow(
-                  cells: <DataCell>[
-                    DataCell(Text(data['Collection Zone'] ?? '')),
-                    DataCell(Text(data['CollectionType'] ?? '')),
-                    DataCell(Text(DateFormat('dd MMM yyyy').format(date))),
-                    DataCell(Text(DateFormat('hh:mm a').format(date))),
-                    DataCell(
-                      IconButton(
-                        icon: Icon(Icons.delete, color: Colors.red),
-                        onPressed: () {
-                          _confirmDeleteGarbageCollection(document.id);
-                        },
-                      ),
-                    ),
-                  ],
-                );
-              }).toList(),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value.toLowerCase();
+                });
+              },
             ),
-          );
-        },
+          ),
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: _firestore.collection('garbage collection').snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                var garbageCollections = snapshot.data!.docs;
+
+                // Filter data based on search query
+                var filteredCollections = garbageCollections.where((document) {
+                  var data = document.data() as Map<String, dynamic>;
+                  var collectionZone = data['Collection Zone']?.toString().toLowerCase() ?? '';
+                  return collectionZone.contains(_searchQuery);
+                }).toList();
+
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    columns: const <DataColumn>[
+                      DataColumn(
+                        label: Text(
+                          'Collection Zone',
+                          style: TextStyle(fontStyle: FontStyle.italic),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Text(
+                          'Collection Type',
+                          style: TextStyle(fontStyle: FontStyle.italic),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Text(
+                          'Date',
+                          style: TextStyle(fontStyle: FontStyle.italic),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Text(
+                          'Time',
+                          style: TextStyle(fontStyle: FontStyle.italic),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Text(
+                          'Action',
+                          style: TextStyle(fontStyle: FontStyle.italic),
+                        ),
+                      ),
+                    ],
+                    rows: filteredCollections.map<DataRow>((DocumentSnapshot document) {
+                      var data = document.data() as Map<String, dynamic>;
+                      var date = (data['Date'] as Timestamp).toDate();
+                      return DataRow(
+                        cells: <DataCell>[
+                          DataCell(Text(data['Collection Zone'] ?? '')),
+                          DataCell(Text(data['CollectionType'] ?? '')),
+                          DataCell(Text(DateFormat('dd MMM yyyy').format(date))),
+                          DataCell(Text(DateFormat('hh:mm a').format(date))),
+                          DataCell(
+                            IconButton(
+                              icon: Icon(Icons.delete, color: Colors.red),
+                              onPressed: () {
+                                _confirmDeleteGarbageCollection(document.id);
+                              },
+                            ),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

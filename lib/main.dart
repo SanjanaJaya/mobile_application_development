@@ -192,7 +192,7 @@ class DashboardScreen extends StatelessWidget {
                     MaterialPageRoute(builder: (context) => LibraryPage()),
                   );
                 }),
-                ServiceIcon('img/garbage.png', 'Garbage', onTap: () {
+                ServiceIcon('img/garbage.png', 'Garbage Schedule', onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => GarbagePage()),
@@ -217,7 +217,6 @@ class DashboardScreen extends StatelessWidget {
                   );
                 }),
                 ServiceIcon('img/contact.png', 'Contact Us'),
-                ServiceIcon('img/location.png', 'Location'),
               ],
             ),
             SizedBox(height: 30),
