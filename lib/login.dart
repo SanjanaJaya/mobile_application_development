@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'main.dart'; // Import your DashboardScreen
+import 'staff.dart'; // Import StaffPage
 
 class AuthScreen extends StatefulWidget {
   @override
@@ -60,6 +61,58 @@ class _AuthScreenState extends State<AuthScreen> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('User document does not exist.')),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      // Handle Firebase Authentication errors
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? 'Login failed. Please try again.')),
+      );
+      print('FirebaseAuthException: ${e.message}');
+    } catch (e) {
+      // Handle any other errors
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An unexpected error occurred. Please try again.')),
+      );
+      print('Error: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _staffLogin() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      // Sign in with Firebase Authentication
+      final userCredential = await _auth.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      // Fetch staff data from Firestore (staff collection)
+      final staffQuery = await _firestore
+          .collection('staff')
+          .where('Email', isEqualTo: _emailController.text.trim())
+          .where('Password', isEqualTo: _passwordController.text.trim())
+          .get();
+
+      if (staffQuery.docs.isNotEmpty) {
+        final staffDoc = staffQuery.docs.first;
+        final staffData = staffDoc.data();
+
+        // Navigate to the StaffPage for staff members with staff data
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => StaffPage(staffData: staffData),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Staff document does not exist.')),
         );
       }
     } on FirebaseAuthException catch (e) {
@@ -165,7 +218,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     ),
                     SizedBox(height: 20),
                     // Display the login or sign-up form based on the isLogin state
-                    isLogin ? _buildLoginForm() : _buildSignUpForm(),
+                    isLogin ? _buildLoginForm() : _buildStaffLoginForm(),
                   ],
                 ),
               ),
@@ -178,7 +231,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   Widget _buildLoginForm() {
     return Container(
-      key: ValueKey('LoginForm'),
+      key: ValueKey('UserLoginForm'),
       padding: EdgeInsets.all(15),
       decoration: BoxDecoration(
         color: Colors.grey[300],
@@ -211,9 +264,9 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 
-  Widget _buildSignUpForm() {
+  Widget _buildStaffLoginForm() {
     return Container(
-      key: ValueKey('SignUpForm'),
+      key: ValueKey('StaffLoginForm'),
       padding: EdgeInsets.all(15),
       decoration: BoxDecoration(
         color: Colors.grey[300],
@@ -221,11 +274,13 @@ class _AuthScreenState extends State<AuthScreen> {
       ),
       child: Column(
         children: [
-          _buildTextField('Staff Email'),
+          _buildTextField('Staff Email', controller: _emailController),
           SizedBox(height: 10),
-          _buildTextField('Password', obscureText: true),
-          SizedBox(height: 10),
-          ElevatedButton(
+          _buildTextField('Password', obscureText: true, controller: _passwordController),
+          SizedBox(height: 20),
+          _isLoading
+              ? CircularProgressIndicator()
+              : ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Color(0xFF1E2A46),
               padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
@@ -233,9 +288,9 @@ class _AuthScreenState extends State<AuthScreen> {
                 borderRadius: BorderRadius.circular(20),
               ),
             ),
-            onPressed: () {},
+            onPressed: _staffLogin,
             child: Text(
-              'Log In',
+              'Log in',
               style: TextStyle(fontSize: 16, color: Colors.white),
             ),
           ),
