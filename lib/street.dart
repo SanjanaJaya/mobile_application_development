@@ -18,7 +18,7 @@ class GarbagePage extends StatelessWidget {
           },
         ),
         title: const Text(
-          'Garbage',
+          'Street maintenance',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 22,
@@ -30,9 +30,9 @@ class GarbagePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CustomButton(text: 'Collection schedule', onPressed: () {}),
+            CustomButton(text: 'Road maintenance', onPressed: () {}),
             const SizedBox(height: 30),
-            CustomButton(text: 'Request pickup', onPressed: () {}),
+            CustomButton(text: 'Lamppost maintenance', onPressed: () {}),
           ],
         ),
       ),
