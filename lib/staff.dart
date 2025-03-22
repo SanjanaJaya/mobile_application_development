@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // Add Firestore package
+import 'librarystaff.dart'; // Import the librarystaff.dart file
 
 class StaffPage extends StatefulWidget {
   final Map<String, dynamic> staffData;
@@ -86,34 +87,11 @@ class _StaffPageState extends State<StaffPage> {
                   SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () {
-                      // Navigate to Garbage Management page
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => GarbageManagementPage(),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      padding: EdgeInsets.symmetric(horizontal: 50, vertical: 25),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                    ),
-                    child: Text(
-                      'Garbage Management',
-                      style: TextStyle(color: Colors.white, fontSize: 20),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () {
                       // Navigate to Library Management page
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => LibraryManagementPage(),
+                          builder: (context) => LibraryStaff(), // Redirect to LibraryStaff
                         ),
                       );
                     },
@@ -157,36 +135,6 @@ class _StaffPageState extends State<StaffPage> {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-// Placeholder for Garbage Management Page
-class GarbageManagementPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Garbage Management'),
-      ),
-      body: Center(
-        child: Text('Garbage Management Page'),
-      ),
-    );
-  }
-}
-
-// Placeholder for Library Management Page
-class LibraryManagementPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Library Management'),
-      ),
-      body: Center(
-        child: Text('Library Management Page'),
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:mad/contact.dart';
 import 'login.dart'; // Import AuthScreen
 import 'garbage.dart';
 import 'health.dart'; // Import HealthPage
@@ -10,6 +11,7 @@ import 'profile.dart'; // Import ProfileScreen
 import 'assesment.dart'; // Import AssessmentPage
 import 'street.dart'; // Import StreetPage
 import 'library.dart'; // Import LibraryPage
+import 'contact.dart.';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter is initialized
