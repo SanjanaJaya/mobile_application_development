@@ -7,6 +7,9 @@ import 'login.dart'; // Import AuthScreen
 import 'garbage.dart';
 import 'health.dart'; // Import HealthPage
 import 'profile.dart'; // Import ProfileScreen
+import 'assesment.dart'; // Import AssessmentPage
+import 'street.dart'; // Import StreetPage
+import 'library.dart'; // Import LibraryPage
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter is initialized
@@ -181,15 +184,30 @@ class DashboardScreen extends StatelessWidget {
               crossAxisCount: 3,
               childAspectRatio: 0.9, // Adjust this value to give more height to the children
               children: [
-                ServiceIcon('img/book.png', 'Library'),
+                ServiceIcon('img/book.png', 'Library', onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => LibraryPage()),
+                  );
+                }),
                 ServiceIcon('img/garbage.png', 'Garbage', onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => GarbagePage()),
                   );
                 }),
-                ServiceIcon('img/assessment.png', 'Assessment'),
-                ServiceIcon('img/street.png', 'Street Maintenance'),
+                ServiceIcon('img/assessment.png', 'Assessment', onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AssessmentPage()),
+                  );
+                }),
+                ServiceIcon('img/street.png', 'Street Maintenance', onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => StreetPage()),
+                  );
+                }),
                 ServiceIcon('img/staff.png', 'Staff Availability', onTap: () {
                   Navigator.push(
                     context,

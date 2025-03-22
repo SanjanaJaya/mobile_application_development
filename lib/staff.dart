@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Add Firestore package
 
 class StaffPage extends StatefulWidget {
   final Map<String, dynamic> staffData;
@@ -10,120 +11,129 @@ class StaffPage extends StatefulWidget {
 }
 
 class _StaffPageState extends State<StaffPage> {
-  bool isOnline = true;
-  String _currentDateTime = '';
+  bool isAvailable = true;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance; // Firestore instance
 
   @override
   void initState() {
     super.initState();
-    _updateDateTime();
+    // Initialize availability status from the database
+    _loadAvailabilityStatus();
   }
 
-  void _updateDateTime() {
+  // Load the current availability status from Firestore
+  void _loadAvailabilityStatus() async {
+    DocumentSnapshot doc = await _firestore
+        .collection('staff')
+        .doc(widget.staffData['uid'])
+        .get();
+    if (doc.exists) {
+      setState(() {
+        isAvailable = doc['availability'] == 'Available';
+      });
+    }
+  }
+
+  // Update the availability status in Firestore
+  void _updateAvailabilityStatus(bool value) async {
     setState(() {
-      _currentDateTime = _getFormattedDateTime();
+      isAvailable = value;
     });
-    // Update the date and time every second
-    Future.delayed(Duration(seconds: 1), _updateDateTime);
-  }
 
-  String _getFormattedDateTime() {
-    final now = DateTime.now();
-    return '${now.day}/${now.month}/${now.year} ${now.hour}:${now.minute}:${now.second}';
+    // Update the database
+    await _firestore.collection('staff').doc(widget.staffData['uid']).update({
+      'availability': value ? 'Available' : 'Absent',
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: Text(
-          _currentDateTime,
-          style: TextStyle(color: Colors.black, fontSize: 18),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Center(
-            child: SwitchListTile(
-              title: Text(
-                isOnline ? 'Online' : 'Offline',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          // Main content centered in the middle of the page
+          Expanded(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Transform.scale(
+                    scale: 2.0, // Increase the size of the switch
+                    child: Switch(
+                      value: isAvailable,
+                      onChanged: (value) {
+                        _updateAvailabilityStatus(value); // Update Firestore
+                      },
+                      activeColor: Colors.green, // Green when "Available"
+                      inactiveThumbColor: Colors.red, // Red when "Absent"
+                      inactiveTrackColor: Colors.red.withOpacity(0.5),
+                    ),
+                  ),
+                  SizedBox(height: 30),
+                  Text(
+                    isAvailable ? 'Available' : 'Absent',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: isAvailable ? Colors.green : Colors.red,
+                    ),
+                  ),
+                  SizedBox(height: 30),
+                  Text(
+                    'Welcome, ${widget.staffData['Name']}!',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Navigate to Garbage Management page
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => GarbageManagementPage(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      padding: EdgeInsets.symmetric(horizontal: 50, vertical: 25),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                    child: Text(
+                      'Garbage Management',
+                      style: TextStyle(color: Colors.white, fontSize: 20),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Navigate to Library Management page
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LibraryManagementPage(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      padding: EdgeInsets.symmetric(horizontal: 50, vertical: 25),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                    child: Text(
+                      'Library Management',
+                      style: TextStyle(color: Colors.white, fontSize: 20),
+                    ),
+                  ),
+                ],
               ),
-              value: isOnline,
-              activeColor: Colors.green,
-              onChanged: (value) {
-                setState(() {
-                  isOnline = value;
-                });
-              },
             ),
           ),
-          SizedBox(height: 30),
-          Text(
-            'Welcome, ${widget.staffData['Name']}!',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  // Navigate to Garbage Management page
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => GarbageManagementPage(),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Text(
-                  'Garbage Management',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                ),
-              ),
-              SizedBox(width: 20),
-              ElevatedButton(
-                onPressed: () {
-                  // Navigate to Library Management page
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LibraryManagementPage(),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Text(
-                  'Library Management',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                ),
-              ),
-            ],
-          ),
-          Spacer(),
+          // Bottom navigation bar
           Padding(
             padding: EdgeInsets.only(bottom: 20),
             child: Row(

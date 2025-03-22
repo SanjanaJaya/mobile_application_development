@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-class GarbagePage extends StatelessWidget {
-  const GarbagePage({super.key});
+class AssessmentPage extends StatelessWidget {
+  const AssessmentPage({super.key});
 
   @override
   Widget build(BuildContext context) {
