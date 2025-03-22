@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "67536154518",
+    "project_id": "citysync-a5df9",
+    "storage_bucket": "citysync-a5df9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:67536154518:android:f8edab3d3b6ddd7b7c77b7",
+        "android_client_info": {
+          "package_name": "com.example.mad"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWHWZwpphZhLD1UnkEqPQ-KRz1UWjoTvc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
