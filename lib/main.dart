@@ -12,6 +12,7 @@ import 'assesment.dart'; // Import AssessmentPage
 import 'street.dart'; // Import StreetPage
 import 'library.dart'; // Import LibraryPage
 import 'contact.dart.';
+import 'staffavailability.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter is initialized
@@ -213,7 +214,7 @@ class DashboardScreen extends StatelessWidget {
                 ServiceIcon('img/staff.png', 'Staff Availability', onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => HealthPage()),
+                    MaterialPageRoute(builder: (context) => StaffAvailabilityPage()),
                   );
                 }),
                 ServiceIcon('img/contact.png', 'Contact Us'),
