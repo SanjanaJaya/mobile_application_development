@@ -10,11 +10,13 @@ class _LibraryStaffState extends State<LibraryStaff> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<LibraryRecord> _libraryRecords = [];
   List<LibraryRecord> _filteredRecords = [];
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _loadBooks();
+    _searchController.addListener(_onSearchChanged);
   }
 
   void _loadBooks() async {
@@ -22,15 +24,26 @@ class _LibraryStaffState extends State<LibraryStaff> {
     setState(() {
       _libraryRecords = querySnapshot.docs.map((doc) {
         return LibraryRecord(
-          id: doc.id, // Add document ID for updating details
+          id: doc.id,
           code: doc['ID'].toString(),
           bookName: doc['BookName'],
-          issueDate: (doc['IssueDate'] as Timestamp).toDate(),
-          returnDate: (doc['ReturnDate'] as Timestamp).toDate(),
+          issueDate: (doc['IssueDate'] as Timestamp?)?.toDate(),
+          returnDate: (doc['ReturnDate'] as Timestamp?)?.toDate(),
           status: doc['Status'],
         );
       }).toList();
+      // Sort books by ID (code) in ascending order
+      _libraryRecords.sort((a, b) => int.parse(a.code).compareTo(int.parse(b.code)));
       _filteredRecords = _libraryRecords;
+    });
+  }
+
+  void _onSearchChanged() {
+    setState(() {
+      _filteredRecords = _libraryRecords
+          .where((record) =>
+          record.bookName.toLowerCase().contains(_searchController.text.toLowerCase()))
+          .toList();
     });
   }
 
@@ -72,87 +85,118 @@ class _LibraryStaffState extends State<LibraryStaff> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: Text('Add New Book'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: _bookNameController,
-                  decoration: InputDecoration(labelText: 'Book Name'),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Add New Book'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: _bookNameController,
+                      decoration: InputDecoration(labelText: 'Book Name'),
+                    ),
+                    TextField(
+                      controller: _idController,
+                      decoration: InputDecoration(labelText: 'ID'),
+                      keyboardType: TextInputType.number,
+                    ),
+                    ListTile(
+                      title: Text('Status: ${_status ? 'Available' : 'Not Available'}'),
+                      trailing: Switch(
+                        value: _status,
+                        onChanged: (value) {
+                          setState(() {
+                            _status = value;
+                            if (_status) {
+                              _issueDate = null;
+                              _returnDate = null;
+                            }
+                          });
+                        },
+                        activeColor: Colors.green,
+                      ),
+                    ),
+                    ListTile(
+                      title: Text(
+                        _issueDate == null
+                            ? 'Select Issue Date'
+                            : 'Issue Date: ${_issueDate!.toLocal().toString().split(' ')[0]}',
+                      ),
+                      trailing: Icon(Icons.calendar_today),
+                      onTap: _status ? null : () => _selectIssueDate(context),
+                    ),
+                    ListTile(
+                      title: Text(
+                        _returnDate == null
+                            ? 'Select Return Date'
+                            : 'Return Date: ${_returnDate!.toLocal().toString().split(' ')[0]}',
+                      ),
+                      trailing: Icon(Icons.calendar_today),
+                      onTap: _status ? null : () => _selectReturnDate(context),
+                    ),
+                  ],
                 ),
-                TextField(
-                  controller: _idController,
-                  decoration: InputDecoration(labelText: 'ID'),
-                  keyboardType: TextInputType.number,
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('Cancel'),
                 ),
-                ListTile(
-                  title: Text('Status: ${_status ? 'Available' : 'Not Available'}'),
-                  trailing: Switch(
-                    value: _status,
-                    onChanged: (value) {
-                      setState(() {
-                        _status = value;
+                TextButton(
+                  onPressed: () async {
+                    // Check if book name or ID already exists
+                    bool bookNameExists = _libraryRecords.any((record) =>
+                    record.bookName.toLowerCase() == _bookNameController.text.toLowerCase());
+                    bool idExists = _libraryRecords.any((record) =>
+                    record.code == _idController.text);
+
+                    if (bookNameExists) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('A book with the same name already exists.'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    if (idExists) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('A book with the same ID already exists.'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    if (_bookNameController.text.isNotEmpty &&
+                        _idController.text.isNotEmpty &&
+                        (_status || (_issueDate != null && _returnDate != null))) {
+                      await _firestore.collection('library').add({
+                        'BookName': _bookNameController.text,
+                        'ID': int.parse(_idController.text),
+                        'IssueDate': _status ? null : Timestamp.fromDate(_issueDate!),
+                        'ReturnDate': _status ? null : Timestamp.fromDate(_returnDate!),
+                        'Status': _status,
                       });
-                    },
-                    activeColor: Colors.green,
-                  ),
-                ),
-                ListTile(
-                  title: Text(
-                    _issueDate == null
-                        ? 'Select Issue Date'
-                        : 'Issue Date: ${_issueDate!.toLocal().toString().split(' ')[0]}',
-                  ),
-                  trailing: Icon(Icons.calendar_today),
-                  onTap: () => _selectIssueDate(context),
-                ),
-                ListTile(
-                  title: Text(
-                    _returnDate == null
-                        ? 'Select Return Date'
-                        : 'Return Date: ${_returnDate!.toLocal().toString().split(' ')[0]}',
-                  ),
-                  trailing: Icon(Icons.calendar_today),
-                  onTap: () => _selectReturnDate(context),
+                      _loadBooks();
+                      Navigator.pop(context);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Please fill all fields and select dates.'),
+                        ),
+                      );
+                    }
+                  },
+                  child: Text('Add'),
                 ),
               ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                if (_bookNameController.text.isNotEmpty &&
-                    _idController.text.isNotEmpty &&
-                    _issueDate != null &&
-                    _returnDate != null) {
-                  await _firestore.collection('library').add({
-                    'BookName': _bookNameController.text,
-                    'ID': int.parse(_idController.text),
-                    'IssueDate': Timestamp.fromDate(_issueDate!),
-                    'ReturnDate': Timestamp.fromDate(_returnDate!),
-                    'Status': _status,
-                  });
-                  _loadBooks();
-                  Navigator.pop(context);
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Please fill all fields and select dates.'),
-                    ),
-                  );
-                }
-              },
-              child: Text('Add'),
-            ),
-          ],
+            );
+          },
         );
       },
     );
@@ -163,7 +207,7 @@ class _LibraryStaffState extends State<LibraryStaff> {
     TextEditingController(text: record.bookName);
     final TextEditingController _idController =
     TextEditingController(text: record.code);
-    bool _status = record.status; // Current status
+    bool _status = record.status;
     DateTime? _issueDate = record.issueDate;
     DateTime? _returnDate = record.returnDate;
 
@@ -198,87 +242,131 @@ class _LibraryStaffState extends State<LibraryStaff> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: Text('Edit Book'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: _bookNameController,
-                  decoration: InputDecoration(labelText: 'Book Name'),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Edit Book'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: _bookNameController,
+                      decoration: InputDecoration(labelText: 'Book Name'),
+                    ),
+                    TextField(
+                      controller: _idController,
+                      decoration: InputDecoration(labelText: 'ID'),
+                      keyboardType: TextInputType.number,
+                    ),
+                    ListTile(
+                      title: Text('Status: ${_status ? 'Available' : 'Not Available'}'),
+                      trailing: Switch(
+                        value: _status,
+                        onChanged: (value) {
+                          setState(() {
+                            _status = value;
+                            if (_status) {
+                              _issueDate = null;
+                              _returnDate = null;
+                            }
+                          });
+                        },
+                        activeColor: Colors.green,
+                      ),
+                    ),
+                    ListTile(
+                      title: Text(
+                        _issueDate == null
+                            ? 'Select Issue Date'
+                            : 'Issue Date: ${_issueDate!.toLocal().toString().split(' ')[0]}',
+                      ),
+                      trailing: Icon(Icons.calendar_today),
+                      onTap: _status ? null : () => _selectIssueDate(context),
+                    ),
+                    ListTile(
+                      title: Text(
+                        _returnDate == null
+                            ? 'Select Return Date'
+                            : 'Return Date: ${_returnDate!.toLocal().toString().split(' ')[0]}',
+                      ),
+                      trailing: Icon(Icons.calendar_today),
+                      onTap: _status ? null : () => _selectReturnDate(context),
+                    ),
+                  ],
                 ),
-                TextField(
-                  controller: _idController,
-                  decoration: InputDecoration(labelText: 'ID'),
-                  keyboardType: TextInputType.number,
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('Cancel'),
                 ),
-                ListTile(
-                  title: Text('Status: ${_status ? 'Available' : 'Not Available'}'),
-                  trailing: Switch(
-                    value: _status,
-                    onChanged: (value) {
-                      setState(() {
-                        _status = value;
+                TextButton(
+                  onPressed: () async {
+                    // Check if book name or ID already exists (excluding the current book)
+                    bool bookNameExists = _libraryRecords.any((r) =>
+                    r.bookName.toLowerCase() == _bookNameController.text.toLowerCase() &&
+                        r.id != record.id);
+                    bool idExists = _libraryRecords.any((r) =>
+                    r.code == _idController.text && r.id != record.id);
+
+                    if (bookNameExists) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('A book with the same name already exists.'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    if (idExists) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('A book with the same ID already exists.'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    if (_bookNameController.text.isNotEmpty &&
+                        _idController.text.isNotEmpty &&
+                        (_status || (_issueDate != null && _returnDate != null))) {
+                      await _firestore.collection('library').doc(record.id).update({
+                        'BookName': _bookNameController.text,
+                        'ID': int.parse(_idController.text),
+                        'IssueDate': _status ? null : Timestamp.fromDate(_issueDate!),
+                        'ReturnDate': _status ? null : Timestamp.fromDate(_returnDate!),
+                        'Status': _status,
                       });
-                    },
-                    activeColor: Colors.green,
-                  ),
+                      _loadBooks();
+                      Navigator.pop(context);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Please fill all fields and select dates.'),
+                        ),
+                      );
+                    }
+                  },
+                  child: Text('Save'),
                 ),
-                ListTile(
-                  title: Text(
-                    _issueDate == null
-                        ? 'Select Issue Date'
-                        : 'Issue Date: ${_issueDate!.toLocal().toString().split(' ')[0]}',
+                TextButton(
+                  onPressed: () async {
+                    // Delete the book
+                    await _firestore.collection('library').doc(record.id).delete();
+                    _loadBooks();
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    'Delete',
+                    style: TextStyle(color: Colors.red),
                   ),
-                  trailing: Icon(Icons.calendar_today),
-                  onTap: () => _selectIssueDate(context),
-                ),
-                ListTile(
-                  title: Text(
-                    _returnDate == null
-                        ? 'Select Return Date'
-                        : 'Return Date: ${_returnDate!.toLocal().toString().split(' ')[0]}',
-                  ),
-                  trailing: Icon(Icons.calendar_today),
-                  onTap: () => _selectReturnDate(context),
                 ),
               ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                if (_bookNameController.text.isNotEmpty &&
-                    _idController.text.isNotEmpty &&
-                    _issueDate != null &&
-                    _returnDate != null) {
-                  await _firestore.collection('library').doc(record.id).update({
-                    'BookName': _bookNameController.text,
-                    'ID': int.parse(_idController.text),
-                    'IssueDate': Timestamp.fromDate(_issueDate!),
-                    'ReturnDate': Timestamp.fromDate(_returnDate!),
-                    'Status': _status,
-                  });
-                  _loadBooks();
-                  Navigator.pop(context);
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Please fill all fields and select dates.'),
-                    ),
-                  );
-                }
-              },
-              child: Text('Save'),
-            ),
-          ],
+            );
+          },
         );
       },
     );
@@ -289,134 +377,80 @@ class _LibraryStaffState extends State<LibraryStaff> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Library Management'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {
-              showSearch(
-                context: context,
-                delegate: BookSearchDelegate(_libraryRecords),
-              );
-            },
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                labelText: 'Search by Book Name',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: [
+                  DataColumn(label: Text('Code')),
+                  DataColumn(label: Text('Book Name')),
+                  DataColumn(label: Text('Issue Date')),
+                  DataColumn(label: Text('Return Date')),
+                  DataColumn(label: Text('Status')),
+                  DataColumn(label: Text('Actions')),
+                ],
+                rows: _filteredRecords.map((record) {
+                  return DataRow(
+                    cells: [
+                      DataCell(Text(record.code)),
+                      DataCell(Text(record.bookName)),
+                      DataCell(Text(record.formattedIssueDate)),
+                      DataCell(Text(record.formattedReturnDate)),
+                      DataCell(
+                        Text(
+                          record.status ? 'Available' : 'Not Available',
+                          style: TextStyle(
+                            color: record.status ? Colors.green : Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () {
+                            _editBook(record);
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                }).toList(),
+              ),
+            ),
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: _filteredRecords.length,
-        itemBuilder: (context, index) {
-          final record = _filteredRecords[index];
-          return Card(
-            margin: EdgeInsets.all(8.0),
-            child: ListTile(
-              title: Text(record.bookName),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Code: ${record.code}'),
-                  Text('Issue Date: ${record.formattedIssueDate}'),
-                  Text('Return Date: ${record.formattedReturnDate}'),
-                  Text('Status: ${record.status ? 'Available' : 'Not Available'}'),
-                ],
-              ),
-              trailing: IconButton(
-                icon: Icon(Icons.edit),
-                onPressed: () {
-                  _editBook(record);
-                },
-              ),
-            ),
-          );
-        },
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addBook,
-        child: Icon(Icons.add),
-        backgroundColor: Color(0xFF213555), // Custom color for the plus button
+        child: Icon(Icons.add, color: Colors.white),
+        backgroundColor: Color(0xFF213555),
       ),
-    );
-  }
-}
-
-class BookSearchDelegate extends SearchDelegate<String> {
-  final List<LibraryRecord> libraryRecords;
-
-  BookSearchDelegate(this.libraryRecords);
-
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return [
-      IconButton(
-        icon: Icon(Icons.clear),
-        onPressed: () {
-          query = '';
-        },
-      ),
-    ];
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
-    return IconButton(
-      icon: Icon(Icons.arrow_back),
-      onPressed: () {
-        close(context, '');
-      },
-    );
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    final results = libraryRecords
-        .where((record) =>
-        record.bookName.toLowerCase().contains(query.toLowerCase()))
-        .toList();
-
-    return ListView.builder(
-      itemCount: results.length,
-      itemBuilder: (context, index) {
-        final record = results[index];
-        return ListTile(
-          title: Text(record.bookName),
-          subtitle: Text('Code: ${record.code}'),
-          onTap: () {
-            close(context, record.bookName);
-          },
-        );
-      },
-    );
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    final suggestions = libraryRecords
-        .where((record) =>
-        record.bookName.toLowerCase().contains(query.toLowerCase()))
-        .toList();
-
-    return ListView.builder(
-      itemCount: suggestions.length,
-      itemBuilder: (context, index) {
-        final record = suggestions[index];
-        return ListTile(
-          title: Text(record.bookName),
-          subtitle: Text('Code: ${record.code}'),
-          onTap: () {
-            query = record.bookName;
-            showResults(context);
-          },
-        );
-      },
     );
   }
 }
 
 class LibraryRecord {
-  String id; // Add document ID for updating details
+  String id;
   String code;
   String bookName;
-  DateTime issueDate;
-  DateTime returnDate;
-  bool status; // Change to bool for status
+  DateTime? issueDate;
+  DateTime? returnDate;
+  bool status;
 
   LibraryRecord({
     required this.id,
@@ -427,6 +461,11 @@ class LibraryRecord {
     required this.status,
   });
 
-  String get formattedIssueDate => "${issueDate.day}/${issueDate.month}/${issueDate.year}";
-  String get formattedReturnDate => "${returnDate.day}/${returnDate.month}/${returnDate.year}";
+  String get formattedIssueDate => issueDate != null
+      ? "${issueDate!.day}/${issueDate!.month}/${issueDate!.year}"
+      : 'Not Set';
+
+  String get formattedReturnDate => returnDate != null
+      ? "${returnDate!.day}/${returnDate!.month}/${returnDate!.year}"
+      : 'Not Set';
 }
