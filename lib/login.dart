@@ -131,8 +131,9 @@ class _AuthScreenState extends State<AuthScreen> {
                                   child: Text(
                                     'User Login',
                                     style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black),
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -151,8 +152,9 @@ class _AuthScreenState extends State<AuthScreen> {
                                   child: Text(
                                     'Staff Login',
                                     style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black),
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -162,11 +164,8 @@ class _AuthScreenState extends State<AuthScreen> {
                       ),
                     ),
                     SizedBox(height: 20),
-                    // Animated form switcher
-                    AnimatedSwitcher(
-                      duration: Duration(milliseconds: 300),
-                      child: isLogin ? _buildLoginForm() : _buildSignUpForm(),
-                    ),
+                    // Display the login or sign-up form based on the isLogin state
+                    isLogin ? _buildLoginForm() : _buildSignUpForm(),
                   ],
                 ),
               ),

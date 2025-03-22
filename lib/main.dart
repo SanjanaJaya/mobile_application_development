@@ -6,6 +6,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'login.dart'; // Import AuthScreen
 import 'garbage.dart';
 import 'health.dart'; // Import HealthPage
+import 'profile.dart'; // Import ProfileScreen
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter is initialized
@@ -46,8 +47,19 @@ class DashboardScreen extends StatelessWidget {
         actions: [
           Padding(
             padding: EdgeInsets.only(right: 16.0),
-            child: CircleAvatar(
-              backgroundImage: NetworkImage(userData['image']),
+            child: GestureDetector(
+              onTap: () {
+                // Navigate to ProfileScreen when the profile picture is clicked
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfileScreen(),
+                  ),
+                );
+              },
+              child: CircleAvatar(
+                backgroundImage: NetworkImage(userData['image']),
+              ),
             ),
           ),
         ],
