@@ -1,34 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:intl/intl.dart'; // For formatting the timestamp
-import 'login.dart';
+import 'login.dart'; // Import your LoginScreen
 
-class ProfileScreen extends StatefulWidget {
+class StaffProfile extends StatefulWidget {
   @override
-  _ProfileScreenState createState() => _ProfileScreenState();
+  _StaffProfileState createState() => _StaffProfileState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _StaffProfileState extends State<StaffProfile> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  Map<String, dynamic>? userData;
+  Map<String, dynamic>? staffData;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _fetchUserData();
+    _fetchStaffData();
   }
 
-  Future<void> _fetchUserData() async {
+  Future<void> _fetchStaffData() async {
     final User? user = _auth.currentUser;
     if (user != null) {
-      final DocumentSnapshot userDoc =
-      await _firestore.collection('user').doc(user.uid).get();
-      if (userDoc.exists) {
+      final DocumentSnapshot staffDoc =
+      await _firestore.collection('staff').doc(user.uid).get();
+      if (staffDoc.exists) {
         setState(() {
-          userData = userDoc.data() as Map<String, dynamic>;
+          staffData = staffDoc.data() as Map<String, dynamic>;
           _isLoading = false;
         });
       }
@@ -57,10 +56,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onPressed: () async {
                 if (controller.text.isNotEmpty) {
                   await _firestore
-                      .collection('user')
+                      .collection('staff')
                       .doc(user.uid)
                       .update({field: controller.text});
-                  _fetchUserData(); // Refresh data after update
+                  _fetchStaffData(); // Refresh data after update
                   Navigator.pop(context);
                 }
               },
@@ -83,10 +82,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
 
-    final String dob = userData!['DOB'] != null
-        ? DateFormat('dd MMMM yyyy').format((userData!['DOB'] as Timestamp).toDate())
-        : 'Not available';
-
     return Scaffold(
       backgroundColor: Colors.grey[200],
       body: Center(
@@ -98,7 +93,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 CircleAvatar(
                   radius: 60,
-                  backgroundImage: NetworkImage(userData!['image']),
+                  backgroundImage: NetworkImage(staffData!['image'] ?? ''),
                 ),
                 IconButton(
                   icon: Icon(Icons.edit, size: 20),
@@ -112,37 +107,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ListTile(
               leading: Icon(Icons.person),
               title: Text(
-                userData!['Name'],
+                staffData!['Name'],
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               trailing: IconButton(
                 icon: Icon(Icons.edit, size: 20),
-                onPressed: () => _editField('Name', userData!['Name']),
+                onPressed: () => _editField('Name', staffData!['Name']),
               ),
             ),
             ListTile(
               leading: Icon(Icons.card_travel),
-              title: Text(userData!['NIC']),
+              title: Text(staffData!['NIC']),
               trailing: IconButton(
                 icon: Icon(Icons.edit, size: 20),
-                onPressed: () => _editField('NIC', userData!['NIC']),
+                onPressed: () => _editField('NIC', staffData!['NIC']),
               ),
             ),
             ListTile(
               leading: Icon(Icons.email),
-              title: Text(userData!['Email']),
-            ),
-            ListTile(
-              leading: Icon(Icons.phone),
-              title: Text(userData!['Phone_number']),
-              trailing: IconButton(
-                icon: Icon(Icons.edit, size: 20),
-                onPressed: () => _editField('Phone_number', userData!['Phone_number']),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.cake),
-              title: Text(dob),
+              title: Text(staffData!['Email']),
             ),
             SizedBox(height: 20),
             ElevatedButton(

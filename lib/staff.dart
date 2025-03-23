@@ -4,6 +4,7 @@ import 'librarystaff.dart'; // Import the librarystaff.dart file
 import 'garbagestaff.dart'; // Import the garbagestaff.dart file
 import 'streetstaff.dart'; // Import the streetstaff.dart file
 import 'assesmentstaff.dart'; // Import the assesmentstaff.dart file
+import 'staffprofile.dart'; // Import the staffprofile.dart file
 
 class StaffPage extends StatefulWidget {
   final Map<String, dynamic> staffData;
@@ -53,6 +54,29 @@ class _StaffPageState extends State<StaffPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(''),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0), // Add padding to avoid edge
+            child: IconButton(
+              icon: CircleAvatar(
+                backgroundImage: NetworkImage(widget.staffData['image'] ?? ''),
+                radius: 20, // Adjust the size of the profile icon
+              ),
+              onPressed: () {
+                // Navigate to the StaffProfile page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => StaffProfile(),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
       body: Column(
         children: [
           // Main content centered in the middle of the page
@@ -181,29 +205,6 @@ class _StaffPageState extends State<StaffPage> {
                   ),
                 ],
               ),
-            ),
-          ),
-          // Bottom navigation bar
-          Padding(
-            padding: EdgeInsets.only(bottom: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.home, size: 30),
-                  onPressed: () {
-                    // Navigate to Home page
-                    Navigator.pushReplacementNamed(context, '/dashboard');
-                  },
-                ),
-                IconButton(
-                  icon: Icon(Icons.person, size: 30),
-                  onPressed: () {
-                    // Navigate to Profile page
-                    Navigator.pushReplacementNamed(context, '/profile');
-                  },
-                ),
-              ],
             ),
           ),
         ],
