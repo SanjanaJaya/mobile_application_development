@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart'; // Add Firestore package
 import 'librarystaff.dart'; // Import the librarystaff.dart file
 import 'garbagestaff.dart'; // Import the garbagestaff.dart file
 import 'streetstaff.dart'; // Import the streetstaff.dart file
+import 'assesmentstaff.dart'; // Import the assesmentstaff.dart file
 
 class StaffPage extends StatefulWidget {
   final Map<String, dynamic> staffData;
@@ -152,6 +153,29 @@ class _StaffPageState extends State<StaffPage> {
                     ),
                     child: Text(
                       'Street Maintenance',
+                      style: TextStyle(color: Colors.white, fontSize: 20),
+                    ),
+                  ),
+                  SizedBox(height: 20), // Add some space between buttons
+                  ElevatedButton(
+                    onPressed: () {
+                      // Navigate to Assessment Staff page
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AssessmentStaffPage(), // Redirect to AssessmentStaffPage
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue, // Same color for consistency
+                      padding: EdgeInsets.symmetric(horizontal: 50, vertical: 25),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                    child: Text(
+                      'Assessments',
                       style: TextStyle(color: Colors.white, fontSize: 20),
                     ),
                   ),

@@ -63,31 +63,26 @@ class _GarbageStaffState extends State<GarbageStaff> {
                       DataColumn(
                         label: Text(
                           'Collection Zone',
-                          style: TextStyle(fontStyle: FontStyle.italic),
                         ),
                       ),
                       DataColumn(
                         label: Text(
                           'Collection Type',
-                          style: TextStyle(fontStyle: FontStyle.italic),
                         ),
                       ),
                       DataColumn(
                         label: Text(
                           'Date',
-                          style: TextStyle(fontStyle: FontStyle.italic),
                         ),
                       ),
                       DataColumn(
                         label: Text(
                           'Time',
-                          style: TextStyle(fontStyle: FontStyle.italic),
                         ),
                       ),
                       DataColumn(
                         label: Text(
                           'Action',
-                          style: TextStyle(fontStyle: FontStyle.italic),
                         ),
                       ),
                     ],
