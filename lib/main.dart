@@ -3,16 +3,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:mad/contact.dart';
 import 'login.dart'; // Import AuthScreen
 import 'garbage.dart';
-import 'health.dart'; // Import HealthPage
 import 'profile.dart'; // Import ProfileScreen
 import 'assesment.dart'; // Import AssessmentPage
 import 'street.dart'; // Import StreetPage
 import 'library.dart'; // Import LibraryPage
-import 'contact.dart.';
 import 'staffavailability.dart';
+import 'contact.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter is initialized
@@ -107,6 +105,12 @@ class DashboardScreen extends StatelessWidget {
               title: Text('Contact us'),
               onTap: () {
                 Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ContactUsScreen(), // Navigate to ContactPage
+                  ),
+                );
               },
             ),
             ListTile(
@@ -217,7 +221,12 @@ class DashboardScreen extends StatelessWidget {
                     MaterialPageRoute(builder: (context) => StaffAvailabilityPage()),
                   );
                 }),
-                ServiceIcon('img/contact.png', 'Contact Us'),
+                ServiceIcon('img/contact.png', 'Contact Us', onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ContactUsScreen()), // Navigate to ContactPage
+                  );
+                }),
               ],
             ),
             SizedBox(height: 30),
