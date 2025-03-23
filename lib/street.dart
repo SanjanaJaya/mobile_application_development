@@ -211,12 +211,6 @@ class _StreetPageState extends State<StreetPage> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(LucideIcons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(LucideIcons.bell), label: ''),
-        ],
-      ),
     );
   }
 }
