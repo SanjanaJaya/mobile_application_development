@@ -133,12 +133,6 @@ class _LibraryPageState extends State<LibraryPage> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(LucideIcons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(LucideIcons.bell), label: ''),
-        ],
-      ),
     );
   }
 }

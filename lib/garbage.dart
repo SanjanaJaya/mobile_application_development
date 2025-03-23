@@ -131,12 +131,6 @@ class _GarbagePageState extends State<GarbagePage> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(LucideIcons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(LucideIcons.bell), label: ''),
-        ],
-      ),
     );
   }
 }

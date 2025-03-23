@@ -233,12 +233,6 @@ class DashboardScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(icon: Icon(LucideIcons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(LucideIcons.bell), label: ''),
-        ],
-      ),
     );
   }
 }

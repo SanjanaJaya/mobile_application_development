@@ -1,73 +1,90 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class AssessmentPage extends StatelessWidget {
-  const AssessmentPage({super.key});
+class AssessmentPage extends StatefulWidget {
+  @override
+  _AssessmentPageState createState() => _AssessmentPageState();
+}
+
+class _AssessmentPageState extends State<AssessmentPage> {
+  Map<String, dynamic>? userData;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData();
+  }
+
+  Future<void> fetchUserData() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('user')
+          .doc(user.uid)
+          .get();
+      if (userDoc.exists) {
+        setState(() {
+          userData = userDoc.data() as Map<String, dynamic>?;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        backgroundColor: Colors.grey[100],
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: const Text(
-          'Assesment',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-            color: Colors.black,
+        title: Text('Assessment'),
+      ),
+      body: userData == null
+          ? Center(child: CircularProgressIndicator())
+          : Center(
+        child: Card(
+          elevation: 5,
+          margin: EdgeInsets.all(16),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Tax Amount:',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  '${userData!['tax']}',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue),
+                ),
+                SizedBox(height: 20),
+                Text(
+                  'Payment Status:',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      userData!['assesment'] == 'Paid' ? Icons.check_circle : Icons.cancel,
+                      color: userData!['assesment'] == 'Paid' ? Colors.green : Colors.red,
+                      size: 24,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      '${userData!['assesment']}',
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: userData!['assesment'] == 'Paid' ? Colors.green : Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CustomButton(text: 'Assessment Information', onPressed: () {}),
-            const SizedBox(height: 30),
-            CustomButton(text: 'Assessment Payment Details', onPressed: () {}),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(icon: Icon(LucideIcons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(LucideIcons.bell), label: ''),
-        ],
-      ),
-    );
-  }
-}
-
-class CustomButton extends StatelessWidget {
-  final String text;
-  final VoidCallback onPressed;
-
-  const CustomButton({super.key, required this.text, required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 300, // Increased width
-      height: 80, // Increased height
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.blue[800],
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-        onPressed: onPressed,
-        child: Text(
-          text,
-          style: const TextStyle(color: Colors.white, fontSize: 18),
         ),
       ),
     );
