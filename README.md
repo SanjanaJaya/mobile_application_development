@@ -1,16 +1,45 @@
-# mad
+# MAD - Municipal Administration Dashboard
 
-A new Flutter project.
+![Flutter](https://img.shields.io/badge/Flutter-%2302569B.svg?style=for-the-badge&logo=Flutter&logoColor=white)
+![Firebase](https://img.shields.io/badge/Firebase-039BE5?style=for-the-badge&logo=Firebase&logoColor=white)
+
+A Flutter application for city councils to manage garbage collection schedules, staff availability, and library book management using Firebase as the backend.
+
+## Features
+
+### 🗑️ Garbage Management
+- Schedule management by neighborhood
+- Route optimization
+- Resident notifications
+
+### 👥 Staff Management
+- Employee availability tracking
+- Shift scheduling
+
+### 📚 Library Management
+- Book catalog with availability status
+- Check-in/check-out system
+- Reservation management
+
+### 🛣️ Street Maintenance
+ - Street Maintenance Requests
+
+## Tech Stack
+
+- **Frontend**: Flutter (Dart)
+- **Backend**: Firebase
+  - Firestore (Database)
+  - Firebase Auth (Authentication)
+  - Cloud Functions (Backend logic)
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+### Prerequisites
+- Flutter SDK
+- Firebase account
+- Android Studio/Xcode (for emulators)
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Installation
+1. Clone the repository
+   ```sh
+   git clone https://github.com/SanjanaJaya/mad.git
